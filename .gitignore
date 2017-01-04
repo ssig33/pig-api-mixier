@@ -1,0 +1,8 @@
+.envrc
+conf.yaml
+bindata.go
+src/github.com
+src/golang.org
+src/gopkg.in
+pkg
+src/pig-api-mixier/vendor
