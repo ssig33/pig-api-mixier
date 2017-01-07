@@ -6,6 +6,7 @@ import (
 	"gopkg.in/resty.v0"
 	"pig-api-mixier/conf"
 	"sort"
+	"strings"
 )
 
 type Pig struct {
@@ -48,7 +49,11 @@ func merge(slices [][]Pig) []Pig {
 func getPigsAPI(urlInfo conf.UrlInfo, url string) []Pig {
 	resty.SetBasicAuth(urlInfo.Basic[0], urlInfo.Basic[1])
 	resp, _ := resty.R().Get(urlInfo.Url + url)
-	return parse(resp.String())
+	pigs := parse(resp.String())
+	for i := range pigs {
+		pigs[i].Url = strings.Replace(pigs[i].Url, urlInfo.Rule[0], urlInfo.Rule[1], 1)
+	}
+	return pigs
 }
 
 func pigs(urlInfos []conf.UrlInfo, method string, query string) []Pig {

@@ -1,8 +1,6 @@
 package conf
 
-import (
-	"fmt"
-)
+import ()
 
 type UrlInfo struct {
 	Url   string
