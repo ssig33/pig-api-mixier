@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo"
 	"net/http"
+	"os"
 	"pig-api-mixier/client"
 )
 
@@ -30,5 +31,5 @@ func main() {
 
 	e.GET("/api/r/latest", latest)
 	e.GET("/api/r/search", search)
-	e.Logger.Debug(e.Start(":1323"))
+	e.Logger.Debug(e.Start("0.0.0.0:" + os.Getenv("PORT")))
 }
