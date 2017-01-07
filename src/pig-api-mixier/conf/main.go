@@ -1,5 +1,9 @@
 package conf
 
+import (
+	"fmt"
+)
+
 type UrlInfo struct {
 	Url   string
 	Rule  []string
@@ -17,7 +21,7 @@ func UrlBases() []string {
 	return result
 }
 
-func LatestUrlBases() []UrlInfo {
+func urlBasesByCase(c string) []UrlInfo {
 	config := parse()
 
 	result := []UrlInfo{}
@@ -28,7 +32,7 @@ func LatestUrlBases() []UrlInfo {
 		included := false
 		for _, method := range slice {
 			if !included {
-				included = method.(string) == "latest"
+				included = method.(string) == c
 			}
 		}
 		if included {
@@ -46,4 +50,12 @@ func LatestUrlBases() []UrlInfo {
 		}
 	}
 	return result
+}
+
+func LatestUrlBases() []UrlInfo {
+	return urlBasesByCase("latest")
+}
+
+func SearchUrlBases() []UrlInfo {
+	return urlBasesByCase("search")
 }

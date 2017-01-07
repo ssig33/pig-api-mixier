@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/resty.v0"
 	"pig-api-mixier/conf"
+	"sort"
 )
 
 type Pig struct {
@@ -20,7 +21,11 @@ type Pig struct {
 	Src          bool   `json:"src"`
 }
 
-//["key", "name", "mtime", "size", "url", "type", "mtime_to_i", "vdr", "custom_links", "metadata", "srt"]
+type ByMtime []Pig
+
+func (a ByMtime) Len() int           { return len(a) }
+func (a ByMtime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByMtime) Less(i, j int) bool { return a[i].Mtime_to_i > a[j].Mtime_to_i }
 
 func main() {
 	fmt.Println("vim-go")
@@ -40,14 +45,28 @@ func merge(slices [][]Pig) []Pig {
 	return result
 }
 
-func Latest() []Pig {
+func getPigsAPI(urlInfo conf.UrlInfo, url string) []Pig {
+	resty.SetBasicAuth(urlInfo.Basic[0], urlInfo.Basic[1])
+	resp, _ := resty.R().Get(urlInfo.Url + url)
+	return parse(resp.String())
+}
+
+func pigs(urlInfos []conf.UrlInfo, method string, query string) []Pig {
 	slices := [][]Pig{}
-	for _, urlInfo := range conf.LatestUrlBases() {
+	for _, urlInfo := range urlInfos {
 		fmt.Println(urlInfo)
-		resty.SetBasicAuth(urlInfo.Basic[0], urlInfo.Basic[1])
-		resp, _ := resty.R().Get(urlInfo.Url + "api/r/latest")
-		slices = append(slices, parse(resp.String()))
+		pigs := getPigsAPI(urlInfo, "api/r/"+method+"?"+query)
+		slices = append(slices, pigs)
 	}
 	pigs := merge(slices)
+	sort.Sort(ByMtime(pigs))
 	return pigs
+}
+
+func Latest(query string) []Pig {
+	return pigs(conf.LatestUrlBases(), "latest", query)
+}
+
+func Search(query string) []Pig {
+	return pigs(conf.SearchUrlBases(), "search", query)
 }

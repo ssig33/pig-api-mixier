@@ -9,7 +9,13 @@ import (
 )
 
 func latest(c echo.Context) error {
-	pigs := client.Latest()
+	pigs := client.Latest(c.QueryString())
+	b, _ := json.Marshal(pigs)
+	return c.String(http.StatusOK, string(b))
+}
+
+func search(c echo.Context) error {
+	pigs := client.Search(c.QueryString())
 	b, _ := json.Marshal(pigs)
 	return c.String(http.StatusOK, string(b))
 }
@@ -23,5 +29,6 @@ func main() {
 	})
 
 	e.GET("/api/r/latest", latest)
+	e.GET("/api/r/search", search)
 	e.Logger.Debug(e.Start(":1323"))
 }
